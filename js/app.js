@@ -39,11 +39,12 @@ const pokemonLocal = [
 
 const nuevoPokemon = {
   nombre: "mew",
-  imagen: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/151.png",
+  imagen:
+    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/151.png",
   tipos: ["psychic"],
 };
 
-const ampliada = [...pokemonLocal, nuevoPokemon]
+const ampliada = [...pokemonLocal, nuevoPokemon];
 
 const coloresTipo = {
   normal: "bg-gray-200 text-gray-800",
@@ -72,6 +73,9 @@ const buscador = document.getElementById("buscador");
 function crearTarjeta(pokemon) {
   const { nombre, imagen, tipos } = pokemon;
   const img = imagen ?? "https://via.placeholder.com/96?text=?";
+  const [principal] = tipos;
+  const colorPrincipal =
+    coloresTipo[principal] ?? "bg-slate-200 text-slate-700";
   const badges = tipos
     .map(function (tipo) {
       const color = coloresTipo[tipo] ?? "bg-slate-200 text-slate-700";
@@ -89,6 +93,12 @@ function crearTarjeta(pokemon) {
   articulo.innerHTML = `
     <img src="${img}" alt="${nombre}" class="w-24 h-24 mx-auto">
     <h2 class="capitalize font-bold text-slate-800 mt-2">${nombre}</h2>
+    <p class="mt-2 text-sm font-medium text-slate-600">
+      Tipo principal:
+      <span class="inline-block mt-1 px-3 py-1 rounded-full text-sm font-semibold capitalize ${colorPrincipal}">
+        ${principal}
+      </span>
+    </p>
     <div class="flex gap-1 justify-center mt-2 flex-wrap">${badges}</div>
   `;
   return articulo;
