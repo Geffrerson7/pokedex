@@ -37,6 +37,14 @@ const pokemonLocal = [
   },
 ];
 
+const nuevoPokemon = {
+  nombre: "mew",
+  imagen: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/151.png",
+  tipos: ["psychic"],
+};
+
+const ampliada = [...pokemonLocal, nuevoPokemon]
+
 const coloresTipo = {
   normal: "bg-gray-200 text-gray-800",
   fire: "bg-red-200 text-red-800",
@@ -96,8 +104,8 @@ function render(lista) {
 
 buscador.addEventListener("input", function () {
   const texto = buscador.value.toLowerCase();
-  const filtrados = pokemonLocal.filter((p) => p.nombre.includes(texto));
+  const filtrados = ampliada.filter((p) => p.nombre.includes(texto));
   render(filtrados);
 });
 
-render(pokemonLocal);
+render(ampliada);
