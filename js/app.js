@@ -10,12 +10,18 @@ const pokemonLocal = [
 const contenedor = document.getElementById("resultado");
 
 function crearTarjeta(pokemon) {
-    const { nombre, imagen, tipos } = pokemon;
-  const articulo = document.createElement("article");   // crea el nodo <article>
+  const { nombre, imagen, tipos } = pokemon;
+  const img = imagen ?? "https://via.placeholder.com/96?text=?";
+  const badges = tipos.map(function (tipo) {
+    return `<span class="text-xs bg-slate-200 text-slate-700 px-2 py-1 rounded-full">${tipo}</span>`;
+  }).join("");
+
+  const articulo = document.createElement("article");
   articulo.className = "bg-white rounded-xl shadow p-4 text-center";
   articulo.innerHTML = `
-    <img src="${imagen}" alt="${nombre}" class="w-24 h-24 mx-auto">
+    <img src="${img}" alt="${nombre}" class="w-24 h-24 mx-auto">
     <h2 class="capitalize font-bold text-slate-800 mt-2">${nombre}</h2>
+    <div class="flex gap-1 justify-center mt-2 flex-wrap">${badges}</div>
   `;
   return articulo;
 }
