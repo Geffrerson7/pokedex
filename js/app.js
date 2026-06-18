@@ -8,6 +8,7 @@ const pokemonLocal = [
 ];
 
 const contenedor = document.getElementById("resultado");
+const buscador = document.getElementById("buscador");
 
 function crearTarjeta(pokemon) {
   const { nombre, imagen, tipos } = pokemon;
@@ -27,11 +28,17 @@ function crearTarjeta(pokemon) {
 }
 
 function render(lista) {
-  contenedor.innerHTML = "";                 // 1. limpia lo anterior
+  contenedor.innerHTML = "";
   lista.forEach(function (pokemon) {
-    const tarjeta = crearTarjeta(pokemon);   // 2. crea el nodo
-    contenedor.appendChild(tarjeta);         // 3. lo inserta en el DOM
+    const tarjeta = crearTarjeta(pokemon);
+    contenedor.appendChild(tarjeta);
   });
 }
 
-render(pokemonLocal);   // ¡píntalo!
+buscador.addEventListener("input", function () {
+  const texto = buscador.value.toLowerCase();
+  const filtrados = pokemonLocal.filter(p => p.nombre.includes(texto));
+  render(filtrados);
+});
+
+render(pokemonLocal);
