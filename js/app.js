@@ -1,50 +1,12 @@
-const pokemonLocal = [
-  {
-    nombre: "bulbasaur",
-    imagen:
-      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
-    tipos: ["grass", "poison"],
-  },
-  {
-    nombre: "charmander",
-    imagen:
-      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png",
-    tipos: ["fire"],
-  },
-  {
-    nombre: "squirtle",
-    imagen:
-      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png",
-    tipos: ["water"],
-  },
-  {
-    nombre: "pikachu",
-    imagen:
-      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png",
-    tipos: ["electric"],
-  },
-  {
-    nombre: "jigglypuff",
-    imagen:
-      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/39.png",
-    tipos: ["normal", "fairy"],
-  },
-  {
-    nombre: "gengar",
-    imagen:
-      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/94.png",
-    tipos: ["ghost", "poison"],
-  },
+const nombres = [
+  "bulbasaur",
+  "charmander",
+  "squirtle",
+  "pikachu",
+  "jigglypuff",
+  "gengar",
 ];
-
-const nuevoPokemon = {
-  nombre: "mew",
-  imagen:
-    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/151.png",
-  tipos: ["psychic"],
-};
-
-const ampliada = [...pokemonLocal, nuevoPokemon];
+let pokedex = [];
 
 const coloresTipo = {
   normal: "bg-gray-200 text-gray-800",
@@ -104,6 +66,15 @@ function crearTarjeta(pokemon) {
   return articulo;
 }
 
+function adaptarPokemon(data) {
+  return {
+    nombre: data.name,
+    imagen:
+      data.sprites?.front_default ?? "https://via.placeholder.com/96?text=?",
+    tipos: data.types.map((t) => t.type.name),
+  };
+}
+
 function render(lista) {
   contenedor.innerHTML = "";
   lista.forEach(function (pokemon) {
@@ -112,10 +83,25 @@ function render(lista) {
   });
 }
 
-buscador.addEventListener("input", function () {
-  const texto = buscador.value.toLowerCase();
-  const filtrados = ampliada.filter((p) => p.nombre.includes(texto));
-  render(filtrados);
+const promesas = nombres.map(function (nombre) {
+  return fetch(`https://pokeapi.co/api/v2/pokemon/${nombre}`).then((r) =>
+    r.json(),
+  );
 });
 
-render(ampliada);
+Promise.all(promesas)
+  .then(function (datos) {
+    pokedex = datos.map(adaptarPokemon);
+    render(pokedex);
+  })
+  .catch(function () {
+    contenedor.innerHTML = `<p class="col-span-full text-center text-red-600">No se pudo cargar la Pokédex.</p>`;
+  });
+
+contenedor.innerHTML = `<p class="col-span-full text-center text-slate-500">Cargando…</p>`;
+
+buscador.addEventListener("input", function () {
+  const texto = buscador.value.toLowerCase();
+  const filtrados = pokedex.filter((p) => p.nombre.includes(texto));
+  render(filtrados);
+});
