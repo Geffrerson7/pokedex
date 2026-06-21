@@ -98,7 +98,16 @@ Promise.all(promesas)
     contenedor.innerHTML = `<p class="col-span-full text-center text-red-600">No se pudo cargar la Pokédex.</p>`;
   });
 
-contenedor.innerHTML = `<p class="col-span-full text-center text-slate-500">Cargando…</p>`;
+contenedor.innerHTML = `
+  <div class="col-span-full flex flex-col items-center justify-center py-10">
+    <div
+      class="w-12 h-12 border-4 border-slate-300 border-t-blue-500 rounded-full animate-spin"
+    ></div>
+    <p class="mt-4 text-slate-500 font-medium">
+      Cargando Pokédex...
+    </p>
+  </div>
+`;
 
 buscador.addEventListener("input", function () {
   const texto = buscador.value.toLowerCase();
