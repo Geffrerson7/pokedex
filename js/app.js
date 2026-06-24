@@ -69,13 +69,13 @@ function crearTarjeta(pokemon) {
     md:p-5
     text-center
     shadow-xl
-    transition-all
+    transition-transform transition-shadow
     duration-500
     hover:scale-[1.02]
     hover:-translate-y-1
     hover:shadow-cyan-500/20
     `;
-  
+
   articulo.innerHTML = `
   <img src="${img}" alt="${nombre}" class="w-28 h-28 mx-auto drop-shadow-2xl">
   <h2
@@ -257,6 +257,7 @@ contenedor.innerHTML = `
     </p>
   </div>
 `;
+
 async function buscarPokemon(nombre) {
   const data = await obtenerPokemon(nombre.toLowerCase());
   return adaptarPokemon(data);
@@ -295,7 +296,7 @@ function mostrarResultado(pokemon) {
 
           <div class="h-2 rounded-full bg-slate-800 overflow-hidden">
             <div
-              class="h-full rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 transition-all duration-700"
+              class="h-full rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 transition-transform transition-shadow duration-700"
               style="width:${porcentaje}%"
             ></div>
           </div>
@@ -322,7 +323,7 @@ function mostrarResultado(pokemon) {
     to-blue-700
     shadow-lg
     shadow-cyan-900/30
-    transition-all
+    transition-transform transition-shadow
     duration-300
     hover:scale-[1.02]
     hover:shadow-cyan-500/20
