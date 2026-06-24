@@ -115,9 +115,26 @@ async function buscarPokemon(nombre) {
   return adaptarPokemon(data);
 }
 
+function capturar(pokemon) {
+  if (!pokedex.some((p) => p.nombre === pokemon.nombre)) {
+    pokedex.push(pokemon);
+  }
+  render(pokedex);
+  buscador.value = "";
+}
+
 function mostrarResultado(pokemon) {
+  const tarjeta = crearTarjeta(pokemon);
+
+  const boton = document.createElement("button");
+  boton.textContent = "⚡ Capturar";
+  boton.className =
+    "mt-2 w-full bg-yellow-400 font-semibold rounded-lg py-1 hover:bg-yellow-500";
+  boton.addEventListener("click", () => capturar(pokemon));
+  tarjeta.appendChild(boton);
+
   contenedor.innerHTML = "";
-  contenedor.appendChild(crearTarjeta(pokemon));
+  contenedor.appendChild(tarjeta);
 }
 
 async function mostrarBusqueda(nombre) {
