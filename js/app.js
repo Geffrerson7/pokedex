@@ -197,16 +197,66 @@ async function cargarPokedex() {
 cargarPokedex();
 
 contenedor.innerHTML = `
-  <div class="col-span-full flex flex-col items-center justify-center py-10">
-    <div
-      class="w-12 h-12 border-4 border-slate-300 border-t-blue-500 rounded-full animate-spin"
-    ></div>
-    <p class="mt-4 text-slate-500 font-medium">
-      Cargando Pokédex...
+  <div
+    class="
+      col-span-full
+      flex
+      flex-col
+      items-center
+      justify-center
+      py-16
+    "
+  >
+    <div class="relative w-20 h-20">
+      <div
+        class="
+          absolute
+          inset-0
+          rounded-full
+          border-4
+          border-slate-700
+        "
+      ></div>
+
+      <div
+        class="
+          absolute
+          inset-0
+          rounded-full
+          border-4
+          border-transparent
+          border-t-cyan-400
+          animate-spin
+        "
+      ></div>
+
+      <div
+        class="
+          absolute
+          inset-3
+          rounded-full
+          border-2
+          border-transparent
+          border-t-purple-400
+          animate-spin
+        "
+        style="animation-direction: reverse;"
+      ></div>
+    </div>
+
+    <p
+      class="
+        mt-6
+        text-sm
+        uppercase
+        tracking-[0.3em]
+        text-slate-400
+      "
+    >
+      Escaneando Pokédex...
     </p>
   </div>
 `;
-
 async function buscarPokemon(nombre) {
   const data = await obtenerPokemon(nombre.toLowerCase());
   return adaptarPokemon(data);
