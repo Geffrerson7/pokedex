@@ -65,9 +65,9 @@ function adaptarPokemon(data) {
     imagen:
       data.sprites?.front_default ?? "https://via.placeholder.com/96?text=?",
     tipos: data.types.map((t) => t.type.name),
+    stats: data.stats.map((s) => ({ nombre: s.stat.name, valor: s.base_stat })),
   };
 }
-
 function render(lista) {
   contenedor.innerHTML = "";
   lista.forEach(function (pokemon) {
@@ -125,6 +125,18 @@ function capturar(pokemon) {
 
 function mostrarResultado(pokemon) {
   const tarjeta = crearTarjeta(pokemon);
+
+  // estadísticas (solo en el resultado de búsqueda)
+  const stats = document.createElement("div");
+  stats.className = "mt-2 text-left text-xs space-y-1";
+  stats.innerHTML = pokemon.stats
+    .map(
+      (s) => `
+    <div class="flex justify-between"><span class="capitalize">${s.nombre}</span><span class="font-semibold">${s.valor}</span></div>
+  `,
+    )
+    .join("");
+  tarjeta.appendChild(stats);
 
   const boton = document.createElement("button");
   boton.textContent = "⚡ Capturar";
