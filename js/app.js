@@ -23,6 +23,7 @@ const coloresTipo = {
 
 const contenedor = document.getElementById("resultado");
 const buscador = document.getElementById("buscador");
+const boton = document.getElementById("btn-buscar");
 
 function crearTarjeta(pokemon) {
   const { nombre, imagen, tipos } = pokemon;
@@ -91,7 +92,7 @@ async function cargarPokedex() {
     "jigglypuff",
     "gengar",
   ];
-  const datos = await Promise.all(nombres.map(obtenerPokemon)); // varios en paralelo, con await
+  const datos = await Promise.all(nombres.map(obtenerPokemon));
   pokedex = datos.map(adaptarPokemon);
   render(pokedex);
 }
@@ -109,8 +110,26 @@ contenedor.innerHTML = `
   </div>
 `;
 
-buscador.addEventListener("input", function () {
-  const texto = buscador.value.toLowerCase();
-  const filtrados = pokedex.filter((p) => p.nombre.includes(texto));
-  render(filtrados);
+async function buscarPokemon(nombre) {
+  const data = await obtenerPokemon(nombre.toLowerCase());
+  return adaptarPokemon(data);
+}
+
+function mostrarResultado(pokemon) {
+  contenedor.innerHTML = "";
+  contenedor.appendChild(crearTarjeta(pokemon));
+}
+
+async function mostrarBusqueda(nombre) {
+  const pokemon = await buscarPokemon(nombre);
+  mostrarResultado(pokemon);
+}
+
+boton.addEventListener("click", function () {
+  const nombre = buscador.value.trim();
+  if (nombre !== "") mostrarBusqueda(nombre);
+});
+
+buscador.addEventListener("keydown", function (event) {
+  if (event.key === "Enter") boton.click();
 });
