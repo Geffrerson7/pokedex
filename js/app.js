@@ -1,11 +1,3 @@
-const nombres = [
-  "bulbasaur",
-  "charmander",
-  "squirtle",
-  "pikachu",
-  "jigglypuff",
-  "gengar",
-];
 let pokedex = [];
 
 const coloresTipo = {
@@ -83,20 +75,28 @@ function render(lista) {
   });
 }
 
-const promesas = nombres.map(function (nombre) {
-  return fetch(`https://pokeapi.co/api/v2/pokemon/${nombre}`).then((r) =>
-    r.json(),
+async function obtenerPokemon(idONombre) {
+  const response = await fetch(
+    `https://pokeapi.co/api/v2/pokemon/${idONombre}`,
   );
-});
+  return response.json();
+}
 
-Promise.all(promesas)
-  .then(function (datos) {
-    pokedex = datos.map(adaptarPokemon);
-    render(pokedex);
-  })
-  .catch(function () {
-    contenedor.innerHTML = `<p class="col-span-full text-center text-red-600">No se pudo cargar la Pokédex.</p>`;
-  });
+async function cargarPokedex() {
+  const nombres = [
+    "bulbasaur",
+    "charmander",
+    "squirtle",
+    "pikachu",
+    "jigglypuff",
+    "gengar",
+  ];
+  const datos = await Promise.all(nombres.map(obtenerPokemon)); // varios en paralelo, con await
+  pokedex = datos.map(adaptarPokemon);
+  render(pokedex);
+}
+
+cargarPokedex();
 
 contenedor.innerHTML = `
   <div class="col-span-full flex flex-col items-center justify-center py-10">
