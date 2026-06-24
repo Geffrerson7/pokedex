@@ -36,26 +36,123 @@ function crearTarjeta(pokemon) {
       const color = coloresTipo[tipo] ?? "bg-slate-200 text-slate-700";
 
       return `
-      <span class="text-xs px-2 py-1 rounded-full ${color}">
-        ${tipo}
-      </span>
-    `;
+        <span
+          class="
+            px-3
+            py-1
+            rounded-full
+            text-xs
+            font-semibold
+            tracking-wide
+            shadow-md
+            transition
+            duration-300
+            hover:scale-110
+            ${color}
+          "
+        >
+          ${tipo}
+        </span>
+      `;
     })
     .join("");
 
   const articulo = document.createElement("article");
-  articulo.className = "bg-white rounded-xl shadow p-4 text-center";
+  articulo.className = `
+    group
+    bg-white/10
+    backdrop-blur-xl
+    border
+    border-white/20
+    rounded-3xl
+    p-4
+    md:p-5
+    text-center
+    shadow-xl
+    transition-all
+    duration-500
+    hover:scale-[1.02]
+    hover:-translate-y-1
+    hover:shadow-cyan-500/20
+    `;
+  
   articulo.innerHTML = `
-    <img src="${img}" alt="${nombre}" class="w-24 h-24 mx-auto">
-    <h2 class="capitalize font-bold text-slate-800 mt-2">${nombre}</h2>
-    <p class="mt-2 text-sm font-medium text-slate-600">
-      Tipo principal:
-      <span class="inline-block mt-1 px-3 py-1 rounded-full text-sm font-semibold capitalize ${colorPrincipal}">
-        ${principal}
-      </span>
+  <img src="${img}" alt="${nombre}" class="w-28 h-28 mx-auto drop-shadow-2xl">
+  <h2
+    class="
+      capitalize
+      text-2xl
+      font-black
+      bg-gradient-to-r
+      from-cyan-300
+      via-white
+      to-purple-300
+      bg-clip-text
+      text-transparent
+    "
+  >
+    ${nombre}
+  </h2>
+
+  <div class="mt-4">
+    <p
+      class="
+        text-xs
+        uppercase
+        tracking-[0.2em]
+        text-slate-400
+        mb-2
+      "
+    >
+      Tipo principal
     </p>
-    <div class="flex gap-1 justify-center mt-2 flex-wrap">${badges}</div>
-  `;
+
+    <span
+      class="
+        inline-flex
+        items-center
+        justify-center
+        px-5
+        py-2
+        rounded-full
+        text-sm
+        font-bold
+        capitalize
+        shadow-lg
+        ring-2
+        ring-white/20
+        ${colorPrincipal}
+      "
+    >
+      ${principal}
+    </span>
+  </div>
+
+  <div class="mt-5">
+    <p
+      class="
+        text-xs
+        uppercase
+        tracking-[0.2em]
+        text-slate-400
+        mb-2
+      "
+    >
+      Tipos
+    </p>
+
+    <div
+      class="
+        flex
+        gap-2
+        justify-center
+        flex-wrap
+      "
+    >
+      ${badges}
+    </div>
+  </div>
+`;
   return articulo;
 }
 
@@ -126,23 +223,64 @@ function capturar(pokemon) {
 function mostrarResultado(pokemon) {
   const tarjeta = crearTarjeta(pokemon);
 
-  // estadísticas (solo en el resultado de búsqueda)
   const stats = document.createElement("div");
-  stats.className = "mt-2 text-left text-xs space-y-1";
+  stats.className =
+    "mt-5 p-4 rounded-2xl bg-black/20 border border-white/10 backdrop-blur-md";
+
   stats.innerHTML = pokemon.stats
-    .map(
-      (s) => `
-    <div class="flex justify-between"><span class="capitalize">${s.nombre}</span><span class="font-semibold">${s.valor}</span></div>
-  `,
-    )
+    .map((s) => {
+      const porcentaje = Math.min(s.valor, 100);
+
+      return `
+        <div class="mb-3">
+          <div class="flex justify-between items-center mb-1">
+            <span class="capitalize text-slate-300 text-xs tracking-wide">
+              ${s.nombre}
+            </span>
+
+            <span class="font-bold text-cyan-300 text-xs">
+              ${s.valor}
+            </span>
+          </div>
+
+          <div class="h-2 rounded-full bg-slate-800 overflow-hidden">
+            <div
+              class="h-full rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 transition-all duration-700"
+              style="width:${porcentaje}%"
+            ></div>
+          </div>
+        </div>
+      `;
+    })
     .join("");
+
   tarjeta.appendChild(stats);
 
   const boton = document.createElement("button");
+
   boton.textContent = "⚡ Capturar";
-  boton.className =
-    "mt-2 w-full bg-yellow-400 font-semibold rounded-lg py-1 hover:bg-yellow-500";
+
+  boton.className = `
+    mt-5
+    w-full
+    py-3
+    rounded-2xl
+    font-bold
+    text-white
+    bg-gradient-to-r
+    from-cyan-600
+    to-blue-700
+    shadow-lg
+    shadow-cyan-900/30
+    transition-all
+    duration-300
+    hover:scale-[1.02]
+    hover:shadow-cyan-500/20
+    active:scale-[0.98]
+  `;
+
   boton.addEventListener("click", () => capturar(pokemon));
+
   tarjeta.appendChild(boton);
 
   contenedor.innerHTML = "";
@@ -166,15 +304,17 @@ buscador.addEventListener("keydown", function (event) {
 let offset = 0;
 
 async function cargarMas() {
-  const respuesta = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=12&offset=${offset}`);
+  const respuesta = await fetch(
+    `https://pokeapi.co/api/v2/pokemon?limit=12&offset=${offset}`,
+  );
   const lista = await respuesta.json();
 
   const datos = await Promise.all(
-    lista.results.map(item => fetch(item.url).then(r => r.json()))
+    lista.results.map((item) => fetch(item.url).then((r) => r.json())),
   );
 
   datos.map(adaptarPokemon).forEach(function (pokemon) {
-    if (!pokedex.some(p => p.nombre === pokemon.nombre)) {
+    if (!pokedex.some((p) => p.nombre === pokemon.nombre)) {
       pokedex.push(pokemon);
     }
   });
