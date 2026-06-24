@@ -162,3 +162,25 @@ boton.addEventListener("click", function () {
 buscador.addEventListener("keydown", function (event) {
   if (event.key === "Enter") boton.click();
 });
+
+let offset = 0;
+
+async function cargarMas() {
+  const respuesta = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=12&offset=${offset}`);
+  const lista = await respuesta.json();
+
+  const datos = await Promise.all(
+    lista.results.map(item => fetch(item.url).then(r => r.json()))
+  );
+
+  datos.map(adaptarPokemon).forEach(function (pokemon) {
+    if (!pokedex.some(p => p.nombre === pokemon.nombre)) {
+      pokedex.push(pokemon);
+    }
+  });
+
+  offset += 12;
+  render(pokedex);
+}
+
+document.getElementById("cargar-mas").addEventListener("click", cargarMas);
