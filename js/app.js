@@ -178,6 +178,11 @@ async function obtenerPokemon(idONombre) {
   const response = await fetch(
     `https://pokeapi.co/api/v2/pokemon/${idONombre}`,
   );
+
+  if (!response.ok) {
+    throw new Error(`No se encontró "${idONombre}"`);
+  }
+
   return response.json();
 }
 
@@ -346,7 +351,7 @@ async function mostrarBusqueda(nombre) {
     const pokemon = await buscarPokemon(nombre);
     mostrarResultado(pokemon);
   } catch (error) {
-    mensaje.textContent = "Algo salió mal. Revisa tu conexión.";
+    mensaje.textContent = error.message;
     mensaje.classList.remove("hidden");
   }
 }
