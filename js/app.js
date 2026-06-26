@@ -25,6 +25,7 @@ const contenedor = document.getElementById("resultado");
 const buscador = document.getElementById("buscador");
 const boton = document.getElementById("btn-buscar");
 const mensaje = document.getElementById("mensaje");
+const spinner = document.getElementById("spinner");
 
 function crearTarjeta(pokemon) {
   const { nombre, imagen, tipos } = pokemon;
@@ -187,17 +188,25 @@ async function obtenerPokemon(idONombre) {
 }
 
 async function cargarPokedex() {
-  const nombres = [
-    "bulbasaur",
-    "charmander",
-    "squirtle",
-    "pikachu",
-    "jigglypuff",
-    "gengar",
-  ];
-  const datos = await Promise.all(nombres.map(obtenerPokemon));
-  pokedex = datos.map(adaptarPokemon);
-  render(pokedex);
+  spinner.classList.remove("hidden");
+  try {
+    const nombres = [
+      "bulbasaur",
+      "charmander",
+      "squirtle",
+      "pikachu",
+      "jigglypuff",
+      "gengar",
+    ];
+    const datos = await Promise.all(nombres.map(obtenerPokemon));
+    pokedex = datos.map(adaptarPokemon);
+    render(pokedex);
+  } catch (error) {
+    mensaje.textContent = "No se pudo cargar la Pokédex.";
+    mensaje.classList.remove("hidden");
+  } finally {
+    spinner.classList.add("hidden");
+  }
 }
 
 cargarPokedex();
@@ -345,6 +354,7 @@ function mostrarResultado(pokemon) {
 }
 
 async function mostrarBusqueda(nombre) {
+  spinner.classList.remove("hidden");
   mensaje.classList.add("hidden");
 
   try {
@@ -353,6 +363,8 @@ async function mostrarBusqueda(nombre) {
   } catch (error) {
     mensaje.textContent = error.message;
     mensaje.classList.remove("hidden");
+  } finally {
+    spinner.classList.add("hidden");
   }
 }
 
