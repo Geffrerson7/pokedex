@@ -12,4 +12,4 @@ Buscador de Pokémon que consume la PokeAPI.
 - [PokeAPI](https://pokeapi.co/)
 
 ## Demo
-🔗 [Ver en GitHub Pages](https://tu-usuario.github.io/pokedex/)
+🔗 [Ver en GitHub Pages](https://geffrerson7.github.io/pokedex/)
