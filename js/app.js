@@ -180,7 +180,7 @@ async function obtenerPokemon(idONombre) {
     `https://pokeapi.co/api/v2/pokemon/${idONombre}`,
   );
 
-  if (response.status == 404 ) {
+  if (response.status == 404) {
     return null;
   }
 
@@ -271,12 +271,31 @@ function mostrarResultado(pokemon) {
 
   const boton = document.createElement("button");
 
-  boton.textContent = "⚡ Capturar";
+  boton.innerHTML = `
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 64 64"
+      class="w-5 h-5"
+    >
+      <circle cx="32" cy="32" r="30" fill="#ffffff"/>
+      <path d="M2 32a30 30 0 0 1 60 0H2z" fill="#ef4444"/>
+      <circle cx="32" cy="32" r="8" fill="#fff" stroke="#111827" stroke-width="3"/>
+      <path d="M2 32h60" stroke="#111827" stroke-width="4"/>
+      <circle cx="32" cy="32" r="3" fill="#d1d5db"/>
+      <circle cx="32" cy="32" r="30" fill="none" stroke="#111827" stroke-width="3"/>
+    </svg>
+
+    <span>Capturar</span>
+`;
 
   boton.className = `
     mt-5
     w-full
-    py-3
+    flex
+    items-center
+    justify-center
+    gap-2
+    py-2.5
     rounded-2xl
     font-bold
     text-white
@@ -320,7 +339,7 @@ async function mostrarBusqueda(nombre) {
       `;
       return;
     }
-    
+
     mostrarResultado(pokemon);
   } catch (error) {
     mensaje.textContent = error.message;
