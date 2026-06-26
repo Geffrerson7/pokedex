@@ -24,6 +24,7 @@ const coloresTipo = {
 const contenedor = document.getElementById("resultado");
 const buscador = document.getElementById("buscador");
 const boton = document.getElementById("btn-buscar");
+const mensaje = document.getElementById("mensaje");
 
 function crearTarjeta(pokemon) {
   const { nombre, imagen, tipos } = pokemon;
@@ -339,8 +340,15 @@ function mostrarResultado(pokemon) {
 }
 
 async function mostrarBusqueda(nombre) {
-  const pokemon = await buscarPokemon(nombre);
-  mostrarResultado(pokemon);
+  mensaje.classList.add("hidden");
+
+  try {
+    const pokemon = await buscarPokemon(nombre);
+    mostrarResultado(pokemon);
+  } catch (error) {
+    mensaje.textContent = "Algo salió mal. Revisa tu conexión.";
+    mensaje.classList.remove("hidden");
+  }
 }
 
 boton.addEventListener("click", function () {
