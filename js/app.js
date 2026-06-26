@@ -180,6 +180,10 @@ async function obtenerPokemon(idONombre) {
     `https://pokeapi.co/api/v2/pokemon/${idONombre}`,
   );
 
+  if (response.status == 404 ) {
+    return null;
+  }
+
   if (!response.ok) {
     throw new Error(`No se encontró "${idONombre}"`);
   }
@@ -213,6 +217,11 @@ cargarPokedex();
 
 async function buscarPokemon(nombre) {
   const data = await obtenerPokemon(nombre.toLowerCase());
+
+  if (data === null) {
+    return null;
+  }
+
   return adaptarPokemon(data);
 }
 
@@ -297,6 +306,21 @@ async function mostrarBusqueda(nombre) {
 
   try {
     const pokemon = await buscarPokemon(nombre);
+
+    if (pokemon === null) {
+      contenedor.innerHTML = `
+        <div class="col-span-full py-12 text-center">
+          <h2 class="text-2xl font-bold text-slate-200">
+            No se encontró "${nombre}"
+          </h2>
+          <p class="mt-2 text-slate-400">
+            Intenta buscar otro Pokémon.
+          </p>
+        </div>
+      `;
+      return;
+    }
+    
     mostrarResultado(pokemon);
   } catch (error) {
     mensaje.textContent = error.message;
