@@ -1,5 +1,7 @@
 let pokedex = [];
 
+const MAX_STAT = 255;
+
 const coloresTipo = {
   normal: "bg-gray-200 text-gray-800",
   fire: "bg-red-200 text-red-800",
@@ -242,7 +244,7 @@ function mostrarResultado(pokemon) {
 
   stats.innerHTML = pokemon.stats
     .map((s) => {
-      const porcentaje = Math.min(s.valor, 100);
+      const porcentaje = (s.valor / MAX_STAT) * 100;
 
       return `
         <div class="mb-3">
@@ -252,7 +254,7 @@ function mostrarResultado(pokemon) {
             </span>
 
             <span class="font-bold text-cyan-300 text-xs">
-              ${s.valor}
+              ${s.valor} / 255
             </span>
           </div>
 
