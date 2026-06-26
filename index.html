@@ -54,7 +54,34 @@
     <section
       class="max-w-6xl mx-3 sm:mx-6 lg:mx-auto mt-6 sm:mt-8 md:mt-10 lg:mt-12 p-4 sm:p-6 md:p-8 lg:p-10 rounded-[24px] sm:rounded-[28px] md:rounded-[32px] bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl shadow-cyan-950/30"
     >
-      <div id="mensaje" class="hidden text-center text-red-600 font-medium my-4"></div>
+      <div
+        id="spinner"
+        class="col-span-full flex flex-col items-center justify-center py-16"
+      >
+        <div class="relative w-20 h-20">
+          <div
+            class="absolute inset-0 rounded-full border-4 border-slate-700"
+          ></div>
+
+          <div
+            class="absolute inset-0 rounded-full border-4 border-transparent border-t-cyan-400 animate-spin"
+          ></div>
+
+          <div
+            class="absolute inset-3 rounded-full border-2 border-transparent border-t-purple-400 animate-spin"
+            style="animation-direction: reverse"
+          ></div>
+        </div>
+
+        <p class="mt-6 text-sm uppercase tracking-[0.3em] text-slate-400">
+          Cargando...
+        </p>
+      </div>
+
+      <div
+        id="mensaje"
+        class="hidden text-center text-red-600 font-medium my-4"
+      ></div>
 
       <div
         id="resultado"
