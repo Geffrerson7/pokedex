@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/styles.css" />
     <title>Pokédex</title>
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
@@ -79,10 +79,16 @@
         </p>
       </div>
 
-      <div
-        id="mensaje"
-        class="hidden text-center text-red-600 font-medium my-4"
-      ></div>
+      <div id="mensaje" class="hidden text-center my-4">
+        <p id="texto-mensaje" class="text-red-400 font-medium"></p>
+
+        <button
+          id="btn-reintentar"
+          class="mt-4 px-5 py-2 rounded-xl font-semibold bg-gradient-to-r from-cyan-500 to-blue-600 hover:scale-105 transition duration-300"
+        >
+          Reintentar
+        </button>
+      </div>
 
       <div
         id="resultado"

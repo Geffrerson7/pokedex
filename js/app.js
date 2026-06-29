@@ -1,4 +1,5 @@
 let pokedex = [];
+let ultimaBusqueda = "";
 
 const MAX_STAT = 255;
 
@@ -38,6 +39,8 @@ const contenedor = document.getElementById("resultado");
 const buscador = document.getElementById("buscador");
 const botonBuscar = document.getElementById("btn-buscar");
 const mensaje = document.getElementById("mensaje");
+const textoMensaje = document.getElementById("texto-mensaje");
+const botonReintentar = document.getElementById("btn-reintentar");
 const spinner = document.getElementById("spinner");
 const botonCargar = document.getElementById("cargar-mas");
 
@@ -161,8 +164,10 @@ async function cargarPokedex() {
     pokedex = datos.map(adaptarPokemon);
     render(pokedex);
   } catch (error) {
-    mensaje.textContent = "No se pudo cargar la Pokédex.";
+    textoMensaje.textContent = "No se pudo cargar la Pokédex.";
     mensaje.classList.remove("hidden");
+    botonCargar.classList.add("hidden");
+    botonReintentar.classList.add("hidden");
   } finally {
     spinner.classList.add("hidden");
   }
@@ -235,8 +240,11 @@ function mostrarResultado(pokemon) {
 }
 
 async function mostrarBusqueda(nombre) {
+  ultimaBusqueda = nombre;
+
   spinner.classList.remove("hidden");
   mensaje.classList.add("hidden");
+  botonReintentar.classList.add("hidden");
 
   try {
     const pokemon = await buscarPokemon(nombre);
@@ -248,13 +256,18 @@ async function mostrarBusqueda(nombre) {
           <p class="mt-2 text-slate-400">Intenta buscar otro Pokémon.</p>
         </div>
       `;
+
+      botonCargar.classList.add("hidden");
       return;
     }
 
     mostrarResultado(pokemon);
+
+    botonReintentar.classList.add("hidden");
   } catch (error) {
-    mensaje.textContent = error.message;
+    textoMensaje.textContent = error.message;
     mensaje.classList.remove("hidden");
+    botonReintentar.classList.remove("hidden");
   } finally {
     spinner.classList.add("hidden");
   }
@@ -292,3 +305,10 @@ async function cargarMas() {
 }
 
 document.getElementById("cargar-mas").addEventListener("click", cargarMas);
+
+botonReintentar.addEventListener("click", () => {
+  if (ultimaBusqueda !== "") {
+    buscador.value = ultimaBusqueda;
+    mostrarBusqueda(ultimaBusqueda);
+  }
+});
