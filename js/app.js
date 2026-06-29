@@ -2,26 +2,37 @@ let pokedex = [];
 
 const MAX_STAT = 255;
 
+// Colores hex por tipo para el sistema de color dinámico
 const coloresTipo = {
-  normal: "bg-gray-200 text-gray-800",
-  fire: "bg-red-200 text-red-800",
-  water: "bg-blue-200 text-blue-800",
-  electric: "bg-yellow-200 text-yellow-800",
-  grass: "bg-green-200 text-green-800",
-  ice: "bg-cyan-200 text-cyan-800",
-  fighting: "bg-orange-200 text-orange-800",
-  poison: "bg-purple-200 text-purple-800",
-  ground: "bg-amber-200 text-amber-800",
-  flying: "bg-sky-200 text-sky-800",
-  psychic: "bg-pink-200 text-pink-800",
-  bug: "bg-lime-200 text-lime-800",
-  rock: "bg-stone-200 text-stone-800",
-  ghost: "bg-indigo-200 text-indigo-800",
-  dragon: "bg-violet-200 text-violet-800",
-  dark: "bg-slate-300 text-slate-900",
-  steel: "bg-zinc-200 text-zinc-800",
-  fairy: "bg-rose-200 text-rose-800",
+  normal: { a: "#9098A1", b: "#B8BEC5", glow: "rgba(144,152,161,0.20)" },
+  fire: { a: "#FF6B35", b: "#FF8C42", glow: "rgba(255,107,53,0.25)" },
+  water: { a: "#3A9BD5", b: "#5BC4F5", glow: "rgba(58,155,213,0.25)" },
+  electric: { a: "#D4A017", b: "#F5C542", glow: "rgba(212,160,23,0.25)" },
+  grass: { a: "#3DAA58", b: "#5CC96B", glow: "rgba(61,170,88,0.25)" },
+  ice: { a: "#4DC8D8", b: "#7DE8F5", glow: "rgba(77,200,216,0.25)" },
+  fighting: { a: "#C84B31", b: "#E06040", glow: "rgba(200,75,49,0.25)" },
+  poison: { a: "#9B4DCA", b: "#B56FE0", glow: "rgba(155,77,202,0.25)" },
+  ground: { a: "#B8860B", b: "#D4A843", glow: "rgba(184,134,11,0.25)" },
+  flying: { a: "#5BA3D9", b: "#80C0F0", glow: "rgba(91,163,217,0.25)" },
+  psychic: { a: "#DE4F8E", b: "#F578B0", glow: "rgba(222,79,142,0.25)" },
+  bug: { a: "#6A9B1E", b: "#8BC34A", glow: "rgba(106,155,30,0.25)" },
+  rock: { a: "#8B7355", b: "#A89070", glow: "rgba(139,115,85,0.25)" },
+  ghost: { a: "#6B52AE", b: "#9A7FD4", glow: "rgba(107,82,174,0.25)" },
+  dragon: { a: "#4A47A3", b: "#7B78D4", glow: "rgba(74,71,163,0.25)" },
+  dark: { a: "#4A4040", b: "#706060", glow: "rgba(74,64,64,0.20)" },
+  steel: { a: "#6D7F8F", b: "#9AB0C0", glow: "rgba(109,127,143,0.20)" },
+  fairy: { a: "#D4527A", b: "#F07AA0", glow: "rgba(212,82,122,0.25)" },
 };
+
+function getColor(tipo) {
+  return (
+    coloresTipo[tipo] ?? {
+      a: "#6B7280",
+      b: "#9CA3AF",
+      glow: "rgba(107,114,128,0.20)",
+    }
+  );
+}
 
 const contenedor = document.getElementById("resultado");
 const buscador = document.getElementById("buscador");
@@ -29,139 +40,82 @@ const boton = document.getElementById("btn-buscar");
 const mensaje = document.getElementById("mensaje");
 const spinner = document.getElementById("spinner");
 
+// ─── CREAR TARJETA BASE (sin botón capturar) ─────────────────────────────────
 function crearTarjeta(pokemon) {
-  const { nombre, imagen, tipos } = pokemon;
+  const { nombre, imagen, tipos, id } = pokemon;
   const img = imagen ?? "https://via.placeholder.com/96?text=?";
   const [principal] = tipos;
-  const colorPrincipal =
-    coloresTipo[principal] ?? "bg-slate-200 text-slate-700";
-  const badges = tipos
-    .map(function (tipo) {
-      const color = coloresTipo[tipo] ?? "bg-slate-200 text-slate-700";
+  const color = getColor(principal);
+  const numPad = id ? `#${String(id).padStart(3, "0")}` : "";
 
+  const articulo = document.createElement("article");
+  articulo.className = "poke-card";
+  articulo.style.cssText = `--type-a:${color.a}; --type-b:${color.b};`;
+  articulo.style.boxShadow = `0 0 0 transparent`;
+
+  // Hover glow dinámico
+  articulo.addEventListener("mouseenter", () => {
+    articulo.style.boxShadow = `0 20px 40px ${color.glow}, 0 4px 12px rgba(0,0,0,0.12)`;
+  });
+  articulo.addEventListener("mouseleave", () => {
+    articulo.style.boxShadow = `0 0 0 transparent`;
+  });
+
+  const typesBadges = tipos
+    .map(
+      (tipo, i) =>
+        `<span class="poke-type-badge${i > 0 ? " poke-type-badge--secondary" : ""}" style="background:${getColor(tipo).a}">${tipo}</span>`,
+    )
+    .join("");
+
+  const statsHTML = pokemon.stats
+    .map((s) => {
+      const pct = Math.round((s.valor / MAX_STAT) * 100);
+      const nombreCorto =
+        {
+          hp: "HP",
+          attack: "Ataque",
+          defense: "Defensa",
+          "special-attack": "Sp.Atq",
+          "special-defense": "Sp.Def",
+          speed: "Veloc.",
+        }[s.nombre] ?? s.nombre;
       return `
-        <span
-          class="
-            px-3
-            py-1
-            rounded-full
-            text-xs
-            font-semibold
-            tracking-wide
-            shadow-md
-            transition
-            duration-300
-            hover:scale-110
-            ${color}
-          "
-        >
-          ${tipo}
-        </span>
-      `;
+        <div class="poke-stat-row">
+          <span class="poke-stat-row__name">${nombreCorto}</span>
+          <span class="poke-stat-row__val">${s.valor}</span>
+          <div class="poke-stat-bar-bg">
+            <div class="poke-stat-bar-fill" style="width:${pct}%"></div>
+          </div>
+        </div>`;
     })
     .join("");
 
-  const articulo = document.createElement("article");
-  articulo.className = `
-    group
-    bg-white/10
-    backdrop-blur-xl
-    border
-    border-white/20
-    rounded-3xl
-    p-4
-    md:p-5
-    text-center
-    shadow-xl
-    transition-transform transition-shadow
-    duration-500
-    hover:scale-[1.02]
-    hover:-translate-y-1
-    hover:shadow-cyan-500/20
-    `;
-
   articulo.innerHTML = `
-  <img src="${img}" alt="${nombre}" class="w-28 h-28 mx-auto drop-shadow-2xl">
-  <h2
-    class="
-      capitalize
-      text-2xl
-      font-black
-      bg-gradient-to-r
-      from-cyan-300
-      via-white
-      to-purple-300
-      bg-clip-text
-      text-transparent
-    "
-  >
-    ${nombre}
-  </h2>
+    <div class="poke-card__splash"></div>
+    <div class="poke-card__orb"></div>
 
-  <div class="mt-4">
-    <p
-      class="
-        text-xs
-        uppercase
-        tracking-[0.2em]
-        text-slate-400
-        mb-2
-      "
-    >
-      Tipo principal
-    </p>
-
-    <span
-      class="
-        inline-flex
-        items-center
-        justify-center
-        px-5
-        py-2
-        rounded-full
-        text-sm
-        font-bold
-        capitalize
-        shadow-lg
-        ring-2
-        ring-white/20
-        ${colorPrincipal}
-      "
-    >
-      ${principal}
-    </span>
-  </div>
-
-  <div class="mt-5">
-    <p
-      class="
-        text-xs
-        uppercase
-        tracking-[0.2em]
-        text-slate-400
-        mb-2
-      "
-    >
-      Tipos
-    </p>
-
-    <div
-      class="
-        flex
-        gap-2
-        justify-center
-        flex-wrap
-      "
-    >
-      ${badges}
+    <div class="poke-card__header">
+      <span class="poke-card__number">${numPad}</span>
+      <div class="poke-card__types">${typesBadges}</div>
     </div>
-  </div>
-`;
+
+    <div class="poke-card__img-wrap">
+      <img class="poke-card__img" src="${img}" alt="${nombre}" loading="lazy">
+      <div class="poke-card__img-shadow"></div>
+    </div>
+
+    <p class="poke-card__name">${nombre}</p>
+
+    <div class="poke-card__stats">${statsHTML}</div>
+  `;
+
   return articulo;
 }
 
 function adaptarPokemon(data) {
   return {
+    id: data.id,
     nombre: data.name,
     imagen:
       data.sprites?.front_default ?? "https://via.placeholder.com/96?text=?",
@@ -169,6 +123,7 @@ function adaptarPokemon(data) {
     stats: data.stats.map((s) => ({ nombre: s.stat.name, valor: s.base_stat })),
   };
 }
+
 function render(lista) {
   contenedor.innerHTML = "";
   lista.forEach(function (pokemon) {
@@ -182,13 +137,9 @@ async function obtenerPokemon(idONombre) {
     `https://pokeapi.co/api/v2/pokemon/${idONombre}`,
   );
 
-  if (response.status == 404) {
-    return null;
-  }
+  if (response.status === 404) return null;
 
-  if (!response.ok) {
-    throw new Error(`No se encontró "${idONombre}"`);
-  }
+  if (!response.ok) throw new Error(`No se encontró "${idONombre}"`);
 
   return response.json();
 }
@@ -219,11 +170,7 @@ cargarPokedex();
 
 async function buscarPokemon(nombre) {
   const data = await obtenerPokemon(nombre.toLowerCase());
-
-  if (data === null) {
-    return null;
-  }
-
+  if (data === null) return null;
   return adaptarPokemon(data);
 }
 
@@ -235,50 +182,15 @@ function capturar(pokemon) {
   buscador.value = "";
 }
 
+// ─── RESULTADO DE BÚSQUEDA (con botón capturar original) ─────────────────────
 function mostrarResultado(pokemon) {
   const tarjeta = crearTarjeta(pokemon);
 
-  const stats = document.createElement("div");
-  stats.className =
-    "mt-5 p-4 rounded-2xl bg-black/20 border border-white/10 backdrop-blur-md";
+  // Botón Capturar — igual que antes
+  const btnCapturar = document.createElement("button");
 
-  stats.innerHTML = pokemon.stats
-    .map((s) => {
-      const porcentaje = (s.valor / MAX_STAT) * 100;
-
-      return `
-        <div class="mb-3">
-          <div class="flex justify-between items-center mb-1">
-            <span class="capitalize text-slate-300 text-xs tracking-wide">
-              ${s.nombre}
-            </span>
-
-            <span class="font-bold text-cyan-300 text-xs">
-              ${s.valor} / 255
-            </span>
-          </div>
-
-          <div class="h-2 rounded-full bg-slate-800 overflow-hidden">
-            <div
-              class="h-full rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 transition-transform transition-shadow duration-700"
-              style="width:${porcentaje}%"
-            ></div>
-          </div>
-        </div>
-      `;
-    })
-    .join("");
-
-  tarjeta.appendChild(stats);
-
-  const boton = document.createElement("button");
-
-  boton.innerHTML = `
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 64 64"
-      class="w-5 h-5"
-    >
+  btnCapturar.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" class="w-5 h-5">
       <circle cx="32" cy="32" r="30" fill="#ffffff"/>
       <path d="M2 32a30 30 0 0 1 60 0H2z" fill="#ef4444"/>
       <circle cx="32" cy="32" r="8" fill="#fff" stroke="#111827" stroke-width="3"/>
@@ -286,11 +198,10 @@ function mostrarResultado(pokemon) {
       <circle cx="32" cy="32" r="3" fill="#d1d5db"/>
       <circle cx="32" cy="32" r="30" fill="none" stroke="#111827" stroke-width="3"/>
     </svg>
-
     <span>Capturar</span>
-`;
+  `;
 
-  boton.className = `
+  btnCapturar.className = `
     mt-5
     w-full
     flex
@@ -313,9 +224,8 @@ function mostrarResultado(pokemon) {
     active:scale-[0.98]
   `;
 
-  boton.addEventListener("click", () => capturar(pokemon));
-
-  tarjeta.appendChild(boton);
+  btnCapturar.addEventListener("click", () => capturar(pokemon));
+  tarjeta.appendChild(btnCapturar);
 
   contenedor.innerHTML = "";
   contenedor.appendChild(tarjeta);
@@ -331,12 +241,8 @@ async function mostrarBusqueda(nombre) {
     if (pokemon === null) {
       contenedor.innerHTML = `
         <div class="col-span-full py-12 text-center">
-          <h2 class="text-2xl font-bold text-slate-200">
-            No se encontró "${nombre}"
-          </h2>
-          <p class="mt-2 text-slate-400">
-            Intenta buscar otro Pokémon.
-          </p>
+          <h2 class="text-2xl font-bold text-slate-200">No se encontró "${nombre}"</h2>
+          <p class="mt-2 text-slate-400">Intenta buscar otro Pokémon.</p>
         </div>
       `;
       return;
