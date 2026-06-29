@@ -1,7 +1,15 @@
+// ─────────────────────────────────────────────────────────────
+// Estado de la aplicación
+// ─────────────────────────────────────────────────────────────
 let pokedex = [];
 let ultimaBusqueda = "";
+let offset = 0;
 
 const MAX_STAT = 255;
+
+// ─────────────────────────────────────────────────────────────
+// Configuración
+// ─────────────────────────────────────────────────────────────
 
 // Colores hex por tipo para el sistema de color dinámico
 const coloresTipo = {
@@ -25,6 +33,24 @@ const coloresTipo = {
   fairy: { a: "#D4527A", b: "#F07AA0", glow: "rgba(212,82,122,0.25)" },
 };
 
+// ─────────────────────────────────────────────────────────────
+// Elementos del DOM
+// ─────────────────────────────────────────────────────────────
+
+const contenedor = document.getElementById("resultado");
+const buscador = document.getElementById("buscador");
+const botonBuscar = document.getElementById("btn-buscar");
+const botonCargar = document.getElementById("cargar-mas");
+const botonReintentar = document.getElementById("btn-reintentar");
+
+const spinner = document.getElementById("spinner");
+
+const mensaje = document.getElementById("mensaje");
+const textoMensaje = document.getElementById("texto-mensaje");
+
+// ─────────────────────────────────────────────────────────────
+// Utilidades
+// ─────────────────────────────────────────────────────────────
 function getColor(tipo) {
   return (
     coloresTipo[tipo] ?? {
@@ -35,14 +61,20 @@ function getColor(tipo) {
   );
 }
 
-const contenedor = document.getElementById("resultado");
-const buscador = document.getElementById("buscador");
-const botonBuscar = document.getElementById("btn-buscar");
-const mensaje = document.getElementById("mensaje");
-const textoMensaje = document.getElementById("texto-mensaje");
-const botonReintentar = document.getElementById("btn-reintentar");
-const spinner = document.getElementById("spinner");
-const botonCargar = document.getElementById("cargar-mas");
+function adaptarPokemon(data) {
+  return {
+    id: data.id,
+    nombre: data.name,
+    imagen:
+      data.sprites?.front_default ?? "https://via.placeholder.com/96?text=?",
+    tipos: data.types.map((t) => t.type.name),
+    stats: data.stats.map((s) => ({ nombre: s.stat.name, valor: s.base_stat })),
+  };
+}
+
+// ─────────────────────────────────────────────────────────────
+// Componentes UI
+// ─────────────────────────────────────────────────────────────
 
 // ─── CREAR TARJETA BASE (sin botón capturar) ─────────────────────────────────
 function crearTarjeta(pokemon) {
@@ -117,17 +149,6 @@ function crearTarjeta(pokemon) {
   return articulo;
 }
 
-function adaptarPokemon(data) {
-  return {
-    id: data.id,
-    nombre: data.name,
-    imagen:
-      data.sprites?.front_default ?? "https://via.placeholder.com/96?text=?",
-    tipos: data.types.map((t) => t.type.name),
-    stats: data.stats.map((s) => ({ nombre: s.stat.name, valor: s.base_stat })),
-  };
-}
-
 function render(lista) {
   botonCargar.classList.remove("hidden");
   contenedor.innerHTML = "";
@@ -135,58 +156,6 @@ function render(lista) {
     const tarjeta = crearTarjeta(pokemon);
     contenedor.appendChild(tarjeta);
   });
-}
-
-async function obtenerPokemon(idONombre) {
-  const response = await fetch(
-    `https://pokeapi.co/api/v2/pokemon/${idONombre}`,
-  );
-
-  if (response.status === 404) return null;
-
-  if (!response.ok) throw new Error(`No se encontró "${idONombre}"`);
-
-  return response.json();
-}
-
-async function cargarPokedex() {
-  spinner.classList.remove("hidden");
-  try {
-    const nombres = [
-      "bulbasaur",
-      "charmander",
-      "squirtle",
-      "pikachu",
-      "jigglypuff",
-      "gengar",
-    ];
-    const datos = await Promise.all(nombres.map(obtenerPokemon));
-    pokedex = datos.map(adaptarPokemon);
-    render(pokedex);
-  } catch (error) {
-    textoMensaje.textContent = "No se pudo cargar la Pokédex.";
-    mensaje.classList.remove("hidden");
-    botonCargar.classList.add("hidden");
-    botonReintentar.classList.add("hidden");
-  } finally {
-    spinner.classList.add("hidden");
-  }
-}
-
-cargarPokedex();
-
-async function buscarPokemon(nombre) {
-  const data = await obtenerPokemon(nombre.toLowerCase());
-  if (data === null) return null;
-  return adaptarPokemon(data);
-}
-
-function capturar(pokemon) {
-  if (!pokedex.some((p) => p.nombre === pokemon.nombre)) {
-    pokedex.push(pokemon);
-  }
-  render(pokedex);
-  buscador.value = "";
 }
 
 // ─── RESULTADO DE BÚSQUEDA (con botón capturar original) ─────────────────────
@@ -239,6 +208,82 @@ function mostrarResultado(pokemon) {
   contenedor.appendChild(tarjeta);
 }
 
+// ─────────────────────────────────────────────────────────────
+// API
+// ─────────────────────────────────────────────────────────────
+async function obtenerPokemon(idONombre) {
+  const response = await fetch(
+    `https://pokeapi.co/api/v2/pokemon/${idONombre}`,
+  );
+
+  if (response.status === 404) return null;
+
+  if (!response.ok) throw new Error(`No se encontró "${idONombre}"`);
+
+  return response.json();
+}
+
+async function buscarPokemon(nombre) {
+  const data = await obtenerPokemon(nombre.toLowerCase());
+  if (data === null) return null;
+  return adaptarPokemon(data);
+}
+
+async function cargarPokedex() {
+  spinner.classList.remove("hidden");
+  try {
+    const nombres = [
+      "bulbasaur",
+      "charmander",
+      "squirtle",
+      "pikachu",
+      "jigglypuff",
+      "gengar",
+    ];
+    const datos = await Promise.all(nombres.map(obtenerPokemon));
+    pokedex = datos.map(adaptarPokemon);
+    render(pokedex);
+  } catch (error) {
+    textoMensaje.textContent = "No se pudo cargar la Pokédex.";
+    mensaje.classList.remove("hidden");
+    botonCargar.classList.add("hidden");
+    botonReintentar.classList.add("hidden");
+  } finally {
+    spinner.classList.add("hidden");
+  }
+}
+
+async function cargarMas() {
+  const respuesta = await fetch(
+    `https://pokeapi.co/api/v2/pokemon?limit=12&offset=${offset}`,
+  );
+  const lista = await respuesta.json();
+
+  const datos = await Promise.all(
+    lista.results.map((item) => fetch(item.url).then((r) => r.json())),
+  );
+
+  datos.map(adaptarPokemon).forEach(function (pokemon) {
+    if (!pokedex.some((p) => p.nombre === pokemon.nombre)) {
+      pokedex.push(pokemon);
+    }
+  });
+
+  offset += 12;
+  render(pokedex);
+}
+
+// ─────────────────────────────────────────────────────────────
+// Lógica de negocio
+// ─────────────────────────────────────────────────────────────
+function capturar(pokemon) {
+  if (!pokedex.some((p) => p.nombre === pokemon.nombre)) {
+    pokedex.push(pokemon);
+  }
+  render(pokedex);
+  buscador.value = "";
+}
+
 async function mostrarBusqueda(nombre) {
   ultimaBusqueda = nombre;
 
@@ -273,6 +318,9 @@ async function mostrarBusqueda(nombre) {
   }
 }
 
+// ─────────────────────────────────────────────────────────────
+// Eventos
+// ─────────────────────────────────────────────────────────────
 botonBuscar.addEventListener("click", function () {
   const nombre = buscador.value.trim();
   if (nombre !== "") mostrarBusqueda(nombre);
@@ -282,29 +330,7 @@ buscador.addEventListener("keydown", function (event) {
   if (event.key === "Enter") botonBuscar.click();
 });
 
-let offset = 0;
-
-async function cargarMas() {
-  const respuesta = await fetch(
-    `https://pokeapi.co/api/v2/pokemon?limit=12&offset=${offset}`,
-  );
-  const lista = await respuesta.json();
-
-  const datos = await Promise.all(
-    lista.results.map((item) => fetch(item.url).then((r) => r.json())),
-  );
-
-  datos.map(adaptarPokemon).forEach(function (pokemon) {
-    if (!pokedex.some((p) => p.nombre === pokemon.nombre)) {
-      pokedex.push(pokemon);
-    }
-  });
-
-  offset += 12;
-  render(pokedex);
-}
-
-document.getElementById("cargar-mas").addEventListener("click", cargarMas);
+botonCargar.addEventListener("click", cargarMas);
 
 botonReintentar.addEventListener("click", () => {
   if (ultimaBusqueda !== "") {
@@ -312,3 +338,8 @@ botonReintentar.addEventListener("click", () => {
     mostrarBusqueda(ultimaBusqueda);
   }
 });
+
+// ─────────────────────────────────────────────────────────────
+// Inicialización
+// ─────────────────────────────────────────────────────────────
+cargarPokedex();
