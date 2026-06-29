@@ -36,9 +36,10 @@ function getColor(tipo) {
 
 const contenedor = document.getElementById("resultado");
 const buscador = document.getElementById("buscador");
-const boton = document.getElementById("btn-buscar");
+const botonBuscar = document.getElementById("btn-buscar");
 const mensaje = document.getElementById("mensaje");
 const spinner = document.getElementById("spinner");
+const botonCargar = document.getElementById("cargar-mas");
 
 // ─── CREAR TARJETA BASE (sin botón capturar) ─────────────────────────────────
 function crearTarjeta(pokemon) {
@@ -125,6 +126,7 @@ function adaptarPokemon(data) {
 }
 
 function render(lista) {
+  botonCargar.classList.remove("hidden");
   contenedor.innerHTML = "";
   lista.forEach(function (pokemon) {
     const tarjeta = crearTarjeta(pokemon);
@@ -186,7 +188,6 @@ function capturar(pokemon) {
 function mostrarResultado(pokemon) {
   const tarjeta = crearTarjeta(pokemon);
 
-  // Botón Capturar — igual que antes
   const btnCapturar = document.createElement("button");
 
   btnCapturar.innerHTML = `
@@ -227,6 +228,8 @@ function mostrarResultado(pokemon) {
   btnCapturar.addEventListener("click", () => capturar(pokemon));
   tarjeta.appendChild(btnCapturar);
 
+  botonCargar.classList.add("hidden");
+
   contenedor.innerHTML = "";
   contenedor.appendChild(tarjeta);
 }
@@ -257,13 +260,13 @@ async function mostrarBusqueda(nombre) {
   }
 }
 
-boton.addEventListener("click", function () {
+botonBuscar.addEventListener("click", function () {
   const nombre = buscador.value.trim();
   if (nombre !== "") mostrarBusqueda(nombre);
 });
 
 buscador.addEventListener("keydown", function (event) {
-  if (event.key === "Enter") boton.click();
+  if (event.key === "Enter") botonBuscar.click();
 });
 
 let offset = 0;
